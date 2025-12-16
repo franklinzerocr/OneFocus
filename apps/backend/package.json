@@ -12,11 +12,13 @@
   },
   "dependencies": {
     "@onefocus/shared": "workspace:*",
-    "fastify": "^5.2.1"
+    "dotenv": "^17.2.3",
+    "fastify": "^5.2.1",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "tsx": "^4.19.2",
-    "vitest": "^2.1.8",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
   }
 }
