@@ -1,0 +1,4 @@
+
+> @onefocus/shared@0.0.0 typecheck C:\projects\personal\OneFocus\packages\shared
+> tsc -p tsconfig.json --noEmit
+
