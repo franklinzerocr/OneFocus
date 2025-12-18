@@ -1,0 +1,169 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ActionKind {
+  AUTO_SAFE
+  NEEDS_APPROVAL
+  MANUAL_ONLY
+}
+
+enum ActionStatus {
+  PROPOSED
+  APPROVED
+  REJECTED
+  EXECUTED
+  FAILED
+  CANCELED
+}
+
+model Project {
+  id         String    @id @default(uuid())
+  externalId String?   @unique // ClickUp space/list/project id (flexible)
+  name       String
+  bucket     String // "primary_work" | "primary_personal" | "everything_else"
+  startDate  DateTime?
+  endDate    DateTime?
+  bufferDays Int       @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tasks           Task[]
+  snapshots       Snapshot[]
+  actionProposals ActionProposed[]
+}
+
+model Task {
+  id         String   @id @default(uuid())
+  externalId String?  @unique // ClickUp task id
+  projectId  String?
+  project    Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  title  String
+  status String
+  tags   String[] @default([])
+
+  dueDate              DateTime?
+  nominalEstimateMin   Int?
+  effectiveEstimateMin Int?
+  pfUsed               Float?
+  pfScopeUsed          String?
+  confidence           Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  snapshotTasks   SnapshotTask[]
+  issueLinks      IssueTaskLink[]
+  actionProposals ActionProposed[]
+}
+
+model Snapshot {
+  id        String   @id @default(uuid())
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  source     String // "clickup" | "github" | "system"
+  capturedAt DateTime @default(now())
+
+  // raw payloads for auditability / replay
+  raw Json
+
+  createdAt DateTime @default(now())
+
+  tasks SnapshotTask[]
+}
+
+model SnapshotTask {
+  id         String   @id @default(uuid())
+  snapshotId String
+  snapshot   Snapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+
+  taskId String
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  // snapshot-specific data (frozen view)
+  status             String
+  dueDate            DateTime?
+  nominalEstimateMin Int?
+  tags               String[]  @default([])
+
+  createdAt DateTime @default(now())
+
+  @@unique([snapshotId, taskId])
+}
+
+model IssueTaskLink {
+  id String @id @default(uuid())
+
+  // GitHub
+  githubRepo        String // "owner/name"
+  githubIssueNumber Int
+  githubIssueNodeId String? // optional
+
+  // Task
+  taskId String
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  // Audit
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([githubRepo, githubIssueNumber])
+}
+
+model ActionProposed {
+  id     String       @id @default(uuid())
+  kind   ActionKind
+  status ActionStatus @default(PROPOSED)
+
+  // What action intends to do (typed later; v1 keeps JSON)
+  payload Json
+
+  // Optional link to project/task
+  projectId String?
+  taskId    String?
+
+  project Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  task    Task?    @relation(fields: [taskId], references: [id], onDelete: SetNull)
+
+  reason    String? // short explanation string
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  executed ActionExecuted?
+}
+
+model ActionExecuted {
+  id         String          @id @default(uuid())
+  proposedId String?         @unique
+  proposed   ActionProposed? @relation(fields: [proposedId], references: [id], onDelete: SetNull)
+
+  status  ActionStatus @default(EXECUTED)
+  payload Json
+  result  Json?
+  error   String?
+
+  executedAt DateTime @default(now())
+}
+
+model MetricDaily {
+  id  String   @id @default(uuid())
+  day DateTime @unique // normalized to 00:00:00Z by app code later
+
+  // PF globals + breakdowns (by project/tag/dow)
+  pfGlobal    Float?
+  pfByProject Json?
+  pfByTag     Json?
+  pfByDow     Json?
+
+  sampleCounts Json?
+  confidence   Json?
+
+  createdAt DateTime @default(now())
+}
