@@ -23,7 +23,10 @@ enum ActionStatus {
 
 model Project {
   id         String    @id @default(uuid())
-  externalId String?   @unique // ClickUp space/list/project id (flexible)
+  externalId   String?  @unique
+  externalType String? // "team" | "space" | "folder" | "list"
+  @@unique([externalType, externalId])
+
   name       String
   bucket     String // "primary_work" | "primary_personal" | "everything_else"
   startDate  DateTime?
@@ -36,6 +39,7 @@ model Project {
   tasks           Task[]
   snapshots       Snapshot[]
   actionProposals ActionProposed[]
+
 }
 
 model Task {
