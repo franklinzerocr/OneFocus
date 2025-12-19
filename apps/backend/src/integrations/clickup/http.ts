@@ -1,5 +1,7 @@
 import { request } from "undici";
-import { config } from "../../config";
+import { getConfig } from "../../config";
+
+const { env } = getConfig()
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -18,15 +20,15 @@ function sleep(ms: number) {
 }
 
 function calcBackoff(attempt: number) {
-  const base = config.env.CLICKUP_BACKOFF_BASE_MS;
-  const max = config.env.CLICKUP_BACKOFF_MAX_MS;
+  const base = env.CLICKUP_BACKOFF_BASE_MS;
+  const max = env.CLICKUP_BACKOFF_MAX_MS;
   const expo = base * 2 ** attempt;
   const jitter = Math.floor(Math.random() * base);
   return Math.min(max, expo + jitter);
 }
 
 export async function clickupRequest<T>(method: HttpMethod, path: string, query?: Record<string, string | number | boolean | undefined>) {
-  const baseUrl = config.env.CLICKUP_API_BASE_URL.replace(/\/$/, "");
+  const baseUrl = env.CLICKUP_API_BASE_URL.replace(/\/$/, "");
   const url = new URL(baseUrl + path);
 
   if (query) {
@@ -36,7 +38,7 @@ export async function clickupRequest<T>(method: HttpMethod, path: string, query?
     }
   }
 
-  const maxRetries = config.env.CLICKUP_MAX_RETRIES;
+  const maxRetries = env.CLICKUP_MAX_RETRIES;
 
   let lastErr: unknown;
 
@@ -45,12 +47,12 @@ export async function clickupRequest<T>(method: HttpMethod, path: string, query?
       const res = await request(url, {
         method,
         headers: {
-          Authorization: config.env.CLICKUP_API_TOKEN,
+          Authorization: env.CLICKUP_API_TOKEN,
           "Content-Type": "application/json",
         },
         // body: undefined,
-        headersTimeout: config.env.CLICKUP_TIMEOUT_MS,
-        bodyTimeout: config.env.CLICKUP_TIMEOUT_MS,
+        headersTimeout: env.CLICKUP_TIMEOUT_MS,
+        bodyTimeout: env.CLICKUP_TIMEOUT_MS,
       });
 
       const text = await res.body.text();

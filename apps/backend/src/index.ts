@@ -1,11 +1,13 @@
 import Fastify from "fastify";
 import { HealthResponseSchema } from "@onefocus/shared";
-import { config } from "./config";
+import { getConfig } from "./config";
 import { clickup } from "./integrations/clickup/client";
+
+const { env } = getConfig();
 
 const app = Fastify({
   logger: {
-    level: config.env.LOG_LEVEL
+    level: env.LOG_LEVEL
   }
 });
 
@@ -24,4 +26,4 @@ app.get("/health", async () => {
   return payload;
 });
 
-await app.listen({ port: config.env.PORT, host: config.env.HOST });
+await app.listen({ port: env.PORT, host: env.HOST });
