@@ -3,6 +3,8 @@ import { getSpaces } from "./endpoints/spaces";
 import { getFolders } from "./endpoints/folders";
 import { getLists } from "./endpoints/lists";
 import { getTasks } from "./endpoints/tasks";
+import { getAllTasks } from "./endpoints/tasksAll";
+
 
 export const clickup = {
   getTeams,
@@ -10,4 +12,5 @@ export const clickup = {
   getFolders,
   getLists,
   getTasks,
+  getAllTasks,
 };
