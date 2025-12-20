@@ -66,4 +66,20 @@ describe("createClickUpHttp", () => {
     expect(requestFn).toHaveBeenCalledTimes(1);
     expect(sleep).toHaveBeenCalledTimes(0);
   });
+
+  it("sends JSON body for POST", async () => {
+    const requestFn = vi.fn(async (_url, opts) => {
+      expect(opts.method).toBe("POST");
+      expect(typeof opts.body).toBe("string");
+      expect(opts.body).toContain('"hello":"world"');
+      return { statusCode: 200, headers: { "content-type": "application/json" }, body: bodyOf({ ok: true }) };
+    });
+
+    const http = createClickUpHttp({ getEnv: () => baseEnv, requestFn, sleep: vi.fn(async () => {}) });
+
+    const res = await http.clickupRequest<{ ok: boolean }>("POST", "/x", undefined, { hello: "world" });
+    expect(res.ok).toBe(true);
+    expect(requestFn).toHaveBeenCalledTimes(1);
+  });
+
 });

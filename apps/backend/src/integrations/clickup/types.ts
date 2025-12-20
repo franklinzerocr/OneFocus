@@ -33,3 +33,17 @@ export interface ClickUpTask {
   due_date?: string | null; // ms as string
   time_estimate?: number | null; // ms
 }
+
+export interface ClickUpComment {
+  id: ClickUpId;
+  comment_text: string;
+}
+
+export interface ClickUpCreateTaskInput {
+  name: string;
+  description?: string;
+  status?: string;
+  tags?: string[];
+  due_date?: number; // ms
+  time_estimate?: number; // ms
+}

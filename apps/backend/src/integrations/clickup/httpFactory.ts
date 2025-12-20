@@ -1,4 +1,3 @@
-import type { Dispatcher } from "undici";
 import { ClickUpHttpError } from "./httpTypes";
 
 
@@ -20,13 +19,14 @@ export type RequestFn = (
     headers: Record<string, string>;
     headersTimeout: number;
     bodyTimeout: number;
-    dispatcher?: Dispatcher;
+    body?: string;
   },
 ) => Promise<{
   statusCode: number;
   headers: Record<string, string | string[] | undefined>;
   body: { text(): Promise<string> };
 }>;
+
 
 export function createClickUpHttp(deps: {
   getEnv: () => ClickUpEnv;
@@ -48,6 +48,7 @@ export function createClickUpHttp(deps: {
     method: HttpMethod,
     path: string,
     query?: Record<string, string | number | boolean | undefined>,
+    bodyJson?: unknown,
   ) {
     const env = deps.getEnv();
 
@@ -66,6 +67,9 @@ export function createClickUpHttp(deps: {
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
       try {
+
+        const body = bodyJson === undefined ? undefined : JSON.stringify(bodyJson);
+
         const res = await deps.requestFn(url, {
           method,
           headers: {
@@ -74,6 +78,7 @@ export function createClickUpHttp(deps: {
           },
           headersTimeout: env.CLICKUP_TIMEOUT_MS,
           bodyTimeout: env.CLICKUP_TIMEOUT_MS,
+          ...(body ? { body } : {}),
         });
 
         const text = await res.body.text();
@@ -116,6 +121,21 @@ export function createClickUpHttp(deps: {
     if (lastErr instanceof Error) throw lastErr;
     throw new Error("ClickUp request failed");
   }
+
+  async function clickupGet<T>(path: string, query?: Record<string, string | number | boolean | undefined>) {
+    return clickupRequest<T>("GET", path, query);
+  }
+
+  async function clickupPatch<T>(path: string, bodyJson: unknown) {
+    return clickupRequest<T>("PATCH", path, undefined, bodyJson);
+  }
+
+  async function clickupPost<T>(path: string, bodyJson: unknown) {
+    return clickupRequest<T>("POST", path, undefined, bodyJson);
+  }
+
+  return { clickupRequest, clickupGet, clickupPatch, clickupPost };
+
 
   return { clickupRequest };
 }
