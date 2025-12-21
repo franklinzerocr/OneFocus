@@ -40,6 +40,16 @@ const EnvSchema = z.object({
     .max(120000)
     .default(6000),
 
+  WEBHOOKS_ENABLED: z
+    .string()
+    .transform((v) => v === "true")
+    .default("true"),
+
+  GITHUB_WEBHOOK_SECRET: z.string().min(1, "GITHUB_WEBHOOK_SECRET is required"),
+
+  WEBHOOK_MAX_BODY_BYTES: z.coerce.number().int().min(1024).max(10_485_760).default(1_048_576),
+
+
 });
 
 export type Env = z.infer<typeof EnvSchema>;

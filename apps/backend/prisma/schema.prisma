@@ -171,3 +171,24 @@ model MetricDaily {
 
   createdAt DateTime @default(now())
 }
+
+model WebhookEvent {
+  id            String   @id @default(uuid())
+
+  source        String   // "github" | "clickup"
+  deliveryId    String   // GitHub: X-GitHub-Delivery ; ClickUp: webhook event id (o signature of payload if none)
+  eventType     String   // GitHub: X-GitHub-Event ; ClickUp: event type header/body
+  receivedAt    DateTime @default(now())
+
+  signatureValid Boolean @default(false)
+
+  // raw payload for audit/replay
+  payloadJson   Json
+
+  // processing lifecycle (v1)
+  status        String   @default("RECEIVED") // RECEIVED | PROCESSED | FAILED
+  error         String?
+
+  @@unique([source, deliveryId])
+  @@index([source, eventType, receivedAt])
+}

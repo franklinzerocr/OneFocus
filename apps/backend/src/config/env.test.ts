@@ -16,6 +16,13 @@ describe("loadEnv", () => {
       CLICKUP_MAX_RETRIES: "1",
       CLICKUP_BACKOFF_BASE_MS: "50",
       CLICKUP_BACKOFF_MAX_MS: "50",
+
+
+
+      WEBHOOKS_ENABLED: "true",
+      WEBHOOK_MAX_BODY_BYTES: "1048576",
+      GITHUB_WEBHOOK_SECRET: "test-secret",
+      CLICKUP_WEBHOOK_SECRET: "test-secret",
     });
 
 
@@ -34,3 +41,6 @@ describe("loadEnv", () => {
     ).toThrow(/DATABASE_URL/i);
   });
 });
+
+
+ 
