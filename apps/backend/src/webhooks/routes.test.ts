@@ -1,21 +1,31 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import Fastify from "fastify";
-import { registerWebhookRoutes } from "./routes";
-import { registerRawBody } from "./registerRawBody";
-import { resetConfigForTests } from "../config";
 
-const hasDb = Boolean(process.env.DATABASE_URL);
-
-// Set minimal env for config parsing in tests
-process.env.DATABASE_URL ||= "postgresql://u:p@localhost:5432/db";
-process.env.CLICKUP_API_TOKEN ||= "t";
-process.env.GITHUB_WEBHOOK_SECRET ||= "s";
-process.env.CLICKUP_WEBHOOK_SECRET ||= "s";
+// 1) Set env BEFORE importing any module that calls getConfig() at import time
+process.env.NODE_ENV ||= "test";
+process.env.DATABASE_URL ||= "postgresql://user:pass@localhost:5432/onefocus_test"; // dummy; DB is mocked
+process.env.CLICKUP_API_TOKEN ||= "test-token";
+process.env.GITHUB_WEBHOOK_SECRET ||= "test-secret";
+process.env.CLICKUP_WEBHOOK_SECRET ||= "test-secret";
 process.env.WEBHOOKS_ENABLED ||= "true";
 process.env.WEBHOOK_MAX_BODY_BYTES ||= "1048576";
 
-(hasDb ? describe : describe.skip)("webhook routes", () => {
+// 2) Mock DB repo so routes don't hit Prisma in CI
+vi.mock("../repositories/webhookEventsRepo", () => {
+  return {
+    insertWebhookEvent: vi.fn(async () => ({ id: "evt_test_id" })),
+    markWebhookProcessed: vi.fn(async () => ({})),
+    markWebhookFailed: vi.fn(async () => ({})),
+  };
+});
+
+describe("webhook routes", () => {
   it("rejects invalid github signature with 401", async () => {
+    // 3) Dynamic import AFTER env + mocks are set
+    const { registerWebhookRoutes } = await import("./routes");
+    const { registerRawBody } = await import("./registerRawBody");
+    const { resetConfigForTests } = await import("../config");
+
     resetConfigForTests();
 
     const app = Fastify();
