@@ -10,6 +10,11 @@ process.env.CLICKUP_WEBHOOK_SECRET ||= "test-secret";
 process.env.WEBHOOKS_ENABLED ||= "true";
 process.env.WEBHOOK_MAX_BODY_BYTES ||= "1048576";
 
+// ✅ NUEVAS requeridas por loadEnv()
+process.env.PROJECT_END_DATE ||= "2099-12-31";
+process.env.ISSUE_TASK_DEFAULT_CLICKUP_LIST_ID ||= "90123456789";
+process.env.DEFAULT_TASK_ESTIMATE_MINUTES ||= "60";
+
 // 2) Mock DB repo so routes don't hit Prisma in CI
 vi.mock("../repositories/webhookEventsRepo", () => {
   return {

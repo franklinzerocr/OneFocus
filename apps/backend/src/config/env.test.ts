@@ -17,14 +17,16 @@ describe("loadEnv", () => {
       CLICKUP_BACKOFF_BASE_MS: "50",
       CLICKUP_BACKOFF_MAX_MS: "50",
 
-
-
       WEBHOOKS_ENABLED: "true",
       WEBHOOK_MAX_BODY_BYTES: "1048576",
       GITHUB_WEBHOOK_SECRET: "test-secret",
       CLICKUP_WEBHOOK_SECRET: "test-secret",
-    });
 
+      // ✅ NUEVAS (Issue ↔ Task Link Engine)
+      PROJECT_END_DATE: "2099-12-31",
+      ISSUE_TASK_DEFAULT_CLICKUP_LIST_ID: "90123456789",
+      DEFAULT_TASK_ESTIMATE_MINUTES: "60",
+    });
 
     expect(env.PORT).toBe(3001);
     expect(env.HOST).toBe("127.0.0.1");
@@ -36,11 +38,12 @@ describe("loadEnv", () => {
         NODE_ENV: "development",
         PORT: "3000",
         HOST: "0.0.0.0",
-        LOG_LEVEL: "info"
+        LOG_LEVEL: "info",
+
+        // ✅ para que el error sea específicamente DATABASE_URL
+        PROJECT_END_DATE: "2099-12-31",
+        ISSUE_TASK_DEFAULT_CLICKUP_LIST_ID: "90123456789",
       })
     ).toThrow(/DATABASE_URL/i);
   });
 });
-
-
- 

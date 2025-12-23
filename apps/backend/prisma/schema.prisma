@@ -102,24 +102,6 @@ model SnapshotTask {
   @@unique([snapshotId, taskId])
 }
 
-model IssueTaskLink {
-  id String @id @default(uuid())
-
-  // GitHub
-  githubRepo        String // "owner/name"
-  githubIssueNumber Int
-  githubIssueNodeId String? // optional
-
-  // Task
-  taskId String
-  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
-
-  // Audit
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([githubRepo, githubIssueNumber])
-}
 
 model ActionProposed {
   id     String       @id @default(uuid())
@@ -192,3 +174,31 @@ model WebhookEvent {
   @@unique([source, deliveryId])
   @@index([source, eventType, receivedAt])
 }
+
+model IssueTaskLink {
+  id            String   @id @default(cuid())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // GitHub identity
+  githubRepo    String   // "owner/name"
+  githubIssueNo Int
+  githubNodeId  String?  // si lo tienes del payload
+  githubIssueUrl String
+
+  // ClickUp identity (external)
+  clickupTaskId String
+  clickupListId String
+  clickupTaskUrl String?
+
+  // ✅ Internal relation (fix)
+  taskId String
+  task   Task   @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  // idempotencia
+  @@unique([githubRepo, githubIssueNo])
+  @@unique([clickupTaskId])
+
+  @@index([taskId])
+}
+

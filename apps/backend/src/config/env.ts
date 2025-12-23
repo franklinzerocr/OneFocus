@@ -49,6 +49,12 @@ const EnvSchema = z.object({
 
   WEBHOOK_MAX_BODY_BYTES: z.coerce.number().int().min(1024).max(10_485_760).default(1_048_576),
 
+    // Issue ↔ Task Link Engine
+  PROJECT_END_DATE: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "PROJECT_END_DATE must be YYYY-MM-DD"),
+  ISSUE_TASK_DEFAULT_CLICKUP_LIST_ID: z.string().min(1, "ISSUE_TASK_DEFAULT_CLICKUP_LIST_ID is required"),
+  DEFAULT_TASK_ESTIMATE_MINUTES: z.coerce.number().int().min(1).default(60),
+
+ 
 
 });
 
