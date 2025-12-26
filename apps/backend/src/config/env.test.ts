@@ -22,9 +22,8 @@ describe("loadEnv", () => {
       GITHUB_WEBHOOK_SECRET: "test-secret",
       CLICKUP_WEBHOOK_SECRET: "test-secret",
 
-      // ✅ NUEVAS (Issue ↔ Task Link Engine)
       PROJECT_END_DATE: "2099-12-31",
-      ISSUE_TASK_DEFAULT_CLICKUP_LIST_ID: "90123456789",
+      ISSUE_TASK_DEFAULT_CLICKUP_LIST_ID: "90152086653",
       DEFAULT_TASK_ESTIMATE_MINUTES: "60",
     });
 
@@ -40,9 +39,10 @@ describe("loadEnv", () => {
         HOST: "0.0.0.0",
         LOG_LEVEL: "info",
 
-        // ✅ para que el error sea específicamente DATABASE_URL
+        // para no fallar por otras requeridas en dev
+        CLICKUP_API_TOKEN: "x",
         PROJECT_END_DATE: "2099-12-31",
-        ISSUE_TASK_DEFAULT_CLICKUP_LIST_ID: "90123456789",
+        ISSUE_TASK_DEFAULT_CLICKUP_LIST_ID: "90152086653",
       })
     ).toThrow(/DATABASE_URL/i);
   });

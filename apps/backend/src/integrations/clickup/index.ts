@@ -1,2 +1,4 @@
-export { createTask as clickupCreateTask } from "./endpoints/taskCreate";
-export { addTaskComment as clickupAddComment } from "./endpoints/taskComment";
+// apps/backend/src/integrations/clickup/index.ts
+export { clickupCreateTask } from "./endpoints/taskCreate";
+export { clickupAddComment } from "./endpoints/taskComment";
+export { clickupUpdateTask } from "./endpoints/taskUpdate";

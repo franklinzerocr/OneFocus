@@ -8,13 +8,12 @@ import type { ClickUpCreateTaskInput } from "./integrations/clickup/types";
 import { registerRawBody } from "./webhooks/registerRawBody";
 import { registerWebhookRoutes } from "./webhooks/routes";
 
-
 const { env } = getConfig();
 
 const app = Fastify({
   logger: {
-    level: env.LOG_LEVEL
-  }
+    level: env.LOG_LEVEL,
+  },
 });
 
 await app.register(async (scoped) => {
@@ -28,7 +27,6 @@ app.post("/dev/ingest/clickup/list/:listId", async (req) => {
   return syncClickUpList(listId, name);
 });
 
-
 app.get("/dev/clickup/teams", async () => {
   return clickup.getTeams();
 });
@@ -37,34 +35,29 @@ app.get("/health", async () => {
   const payload = {
     ok: true,
     service: "onefocus-backend",
-    ts: new Date().toISOString()
+    ts: new Date().toISOString(),
   };
 
   HealthResponseSchema.parse(payload);
   return payload;
 });
 
-
-
-
 app.patch("/dev/clickup/task/:taskId", async (req) => {
   const { taskId } = req.params as { taskId: string };
   const body = req.body as ClickUpTaskUpdateInput;
-  return clickup.updateTask(taskId, body);
+  return clickup.clickupUpdateTask(taskId, body);
 });
 
 app.post("/dev/clickup/list/:listId/task", async (req) => {
   const { listId } = req.params as { listId: string };
   const body = req.body as ClickUpCreateTaskInput;
-  return clickup.createTask(listId, body);
+  return clickup.clickupCreateTask(listId, body);
 });
 
 app.post("/dev/clickup/task/:taskId/comment", async (req) => {
   const { taskId } = req.params as { taskId: string };
   const body = req.body as { comment_text: string };
-  return clickup.addTaskComment(taskId, body.comment_text);
+  return clickup.clickupAddComment(taskId, body.comment_text);
 });
-
-
 
 await app.listen({ port: env.PORT, host: env.HOST });

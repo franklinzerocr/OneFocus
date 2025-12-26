@@ -1,3 +1,4 @@
+// apps/backend/src/integrations/clickup/endpoints/taskUpdate.ts
 import { clickupRequest } from "../http";
 import type { ClickUpTask } from "../types";
 
@@ -10,6 +11,6 @@ export type ClickUpTaskUpdateInput = {
   tags?: string[];
 };
 
-export async function updateTask(taskId: string, input: ClickUpTaskUpdateInput) {
+export async function clickupUpdateTask(taskId: string, input: ClickUpTaskUpdateInput) {
   return clickupRequest<ClickUpTask>("PATCH", `/task/${taskId}`, undefined, input);
 }
