@@ -4,6 +4,8 @@ import { prisma } from "../../db/prisma";
 import { parseDueDateFromIssue } from "./issueParser";
 import type { GithubIssueOpenedEvent } from "./types";
 import { clickupCreateTask, clickupAddComment } from "../../integrations/clickup";
+import { autoSafeAction } from "../../action/actionService";
+import type { ActionKind } from "@prisma/client";
 
 function must<T>(v: T | undefined | null, message: string): T {
   if (v === undefined || v === null || (typeof v === "string" && v.length === 0)) {
@@ -85,5 +87,29 @@ export async function handleGithubIssueEvent(evt: GithubIssueOpenedEvent) {
 
   await clickupAddComment(created.id, `Linked GitHub issue: ${evt.issue.html_url}`);
 
-  return { status: "linked" as const, linkId: link.id, clickupTaskId: created.id };
+  const kind: ActionKind = "AUTO_SAFE";
+
+  // ✅ input NO incluye `kind` porque autoSafeAction usa Omit<ProposeActionInput, "kind">
+  const { proposed, executed } = await autoSafeAction(
+    kind,
+    {
+      payload: {
+        type: "ISSUE_TASK_LINK",
+        github: { repo, issueNo, url: evt.issue.html_url },
+        clickup: { listId: defaultListId, taskId: created.id },
+        linkId: link.id,
+      },
+      taskId: internalTask.id,
+      reason: "Auto-link GitHub issue to ClickUp task",
+    },
+    async () => ({ result: { linkId: link.id, clickupTaskId: created.id } })
+  );
+
+  return {
+    status: "linked" as const,
+    linkId: link.id,
+    clickupTaskId: created.id,
+    actionProposedId: proposed.id,
+    actionExecutedId: executed.id,
+  };
 }

@@ -1,18 +1,30 @@
-import { prisma } from "../db";
-import type { IngestedProject } from "@onefocus/shared";
+import { prisma } from "../db/prisma";
 
-export async function upsertProject(p: IngestedProject) {
+export async function upsertProject(input: {
+  externalType: string;
+  externalId: string;
+  name: string;
+  bucket: string;
+}) {
+  // externalId puede ser null, pero en tu schema está String? @unique y @@unique([externalType, externalId])
+  // Para evitar null, exigimos string en input.
+
   return prisma.project.upsert({
-    where: { externalType_externalId: { externalType: p.externalType, externalId: p.externalId } },
+    where: {
+      externalType_externalId: {
+        externalType: input.externalType,
+        externalId: input.externalId,
+      },
+    },
     create: {
-      externalType: p.externalType,
-      externalId: p.externalId,
-      name: p.name,
-      bucket: p.bucket,
+      externalType: input.externalType,
+      externalId: input.externalId,
+      name: input.name,
+      bucket: input.bucket,
     },
     update: {
-      name: p.name,
-      bucket: p.bucket,
+      name: input.name,
+      bucket: input.bucket,
     },
   });
 }

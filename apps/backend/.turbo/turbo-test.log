@@ -5,14 +5,16 @@
 
 [1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mC:/projects/personal/OneFocus/apps/backend[39m
 
- [32m✓[39m src/linking/issueTask/issueTaskLinkService.test.ts [2m([22m[2m2 tests[22m[2m)[22m[90m 56[2mms[22m[39m
  [32m✓[39m src/integrations/clickup/httpFactory.test.ts [2m([22m[2m4 tests[22m[2m)[22m[90m 6[2mms[22m[39m
+ [32m✓[39m src/linking/issueTask/issueTaskLinkService.test.ts [2m([22m[2m2 tests[22m[2m)[22m[90m 124[2mms[22m[39m
+ [32m✓[39m src/action/actionService.test.ts [2m([22m[2m3 tests[22m[2m)[22m[90m 116[2mms[22m[39m
+ [32m✓[39m src/normalizer/clickup/clickupNormalizer.test.ts [2m([22m[2m1 test[22m[2m)[22m[90m 5[2mms[22m[39m
+ [32m✓[39m src/config/env.test.ts [2m([22m[2m2 tests[22m[2m)[22m[90m 5[2mms[22m[39m
  [2m[90m↓[39m[22m src/db/db.test.ts [2m([22m[2m1 test[22m[2m | [22m[33m1 skipped[39m[2m)[22m
- [32m✓[39m src/config/env.test.ts [2m([22m[2m2 tests[22m[2m)[22m[90m 6[2mms[22m[39m
- [32m✓[39m src/webhooks/routes.test.ts [2m([22m[2m1 test[22m[2m)[22m[90m 190[2mms[22m[39m
+ [32m✓[39m src/webhooks/routes.test.ts [2m([22m[2m1 test[22m[2m)[22m[90m 218[2mms[22m[39m
 
-[2m Test Files [22m [1m[32m4 passed[39m[22m[2m | [22m[33m1 skipped[39m[90m (5)[39m
-[2m      Tests [22m [1m[32m9 passed[39m[22m[2m | [22m[33m1 skipped[39m[90m (10)[39m
-[2m   Start at [22m 18:06:25
-[2m   Duration [22m 836ms[2m (transform 291ms, setup 0ms, collect 641ms, tests 257ms, environment 1ms, prepare 571ms)[22m
+[2m Test Files [22m [1m[32m6 passed[39m[22m[2m | [22m[33m1 skipped[39m[90m (7)[39m
+[2m      Tests [22m [1m[32m13 passed[39m[22m[2m | [22m[33m1 skipped[39m[90m (14)[39m
+[2m   Start at [22m 16:58:04
+[2m   Duration [22m 1.19s[2m (transform 391ms, setup 0ms, collect 753ms, tests 474ms, environment 2ms, prepare 762ms)[22m
 

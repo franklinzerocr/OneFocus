@@ -7,6 +7,10 @@ import type { ClickUpTaskUpdateInput } from "./integrations/clickup/endpoints/ta
 import type { ClickUpCreateTaskInput } from "./integrations/clickup/types";
 import { registerRawBody } from "./webhooks/registerRawBody";
 import { registerWebhookRoutes } from "./webhooks/routes";
+import { registerActionRoutes } from "./action/routes";
+import { registerClickUpNormalizerRoutes } from "./normalizer/clickup/routes";
+
+
 
 const { env } = getConfig();
 
@@ -19,6 +23,9 @@ const app = Fastify({
 await app.register(async (scoped) => {
   registerRawBody(scoped);
   await registerWebhookRoutes(scoped);
+  await registerActionRoutes(scoped);
+  await registerClickUpNormalizerRoutes(scoped);
+
 });
 
 app.post("/dev/ingest/clickup/list/:listId", async (req) => {
