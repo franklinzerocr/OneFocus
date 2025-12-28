@@ -5,6 +5,8 @@ import { getFolders } from "./endpoints/folders";
 import { getLists, getList } from "./endpoints/lists";
 import { getTasks } from "./endpoints/tasks";
 import { getAllTasks } from "./endpoints/tasksAll";
+// apps/backend/src/integrations/clickup/client.ts
+
 
 import { clickupUpdateTask } from "./endpoints/taskUpdate";
 import { clickupCreateTask } from "./endpoints/taskCreate";
@@ -28,3 +30,5 @@ export const clickup = {
   createTask: clickupCreateTask,
   addTaskComment: clickupAddComment,
 };
+
+

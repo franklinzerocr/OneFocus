@@ -25,6 +25,8 @@ describe("loadEnv", () => {
       PROJECT_END_DATE: "2099-12-31",
       ISSUE_TASK_DEFAULT_CLICKUP_LIST_ID: "90152086653",
       DEFAULT_TASK_ESTIMATE_MINUTES: "60",
+
+      CLICKUP_WORKSPACE_ID: "901518686475",
     });
 
     expect(env.PORT).toBe(3001);

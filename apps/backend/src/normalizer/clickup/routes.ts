@@ -4,6 +4,8 @@ import { z } from "zod";
 import { normalizeClickUpListAndTasks } from "./clickupNormalizer";
 import { persistClickUpSnapshot } from "./persistSnapshot";
 import { getList, getTasks } from "../../integrations/clickup/client";
+import { snapshotWorkspaceFromSpaces } from "./crawler";
+import { snapshotList } from "./snapshotList";
 
 const Params = z.object({
   listId: z.string().min(1),
@@ -22,10 +24,23 @@ type ClickUpTaskLite = {
   time_estimate?: number | null;
 };
 
-function toTaskLiteArray(input: unknown): ClickUpTaskLite[] {
-  if (!Array.isArray(input)) return [];
+function extractTasksArray(tasksRaw: unknown): unknown[] {
+  // Some clients return an array already
+  if (Array.isArray(tasksRaw)) return tasksRaw;
 
-  return input
+  // ClickUp commonly returns { tasks: [...] }
+  if (tasksRaw && typeof tasksRaw === "object") {
+    const o = tasksRaw as Record<string, unknown>;
+    if (Array.isArray(o.tasks)) return o.tasks;
+  }
+
+  return [];
+}
+
+function toTaskLiteArray(input: unknown): ClickUpTaskLite[] {
+  const arr = extractTasksArray(input);
+
+  return arr
     .map((t): ClickUpTaskLite | null => {
       if (!t || typeof t !== "object") return null;
       const o = t as Record<string, unknown>;
@@ -39,7 +54,7 @@ function toTaskLiteArray(input: unknown): ClickUpTaskLite[] {
       const due_date = o.due_date as ClickUpTaskLite["due_date"];
       const time_estimate = o.time_estimate as ClickUpTaskLite["time_estimate"];
 
-      // ✅ With exactOptionalPropertyTypes, don't set optional props to undefined; omit them.
+      // exactOptionalPropertyTypes: don't set optional props to undefined; omit them.
       return {
         id,
         name,
@@ -58,19 +73,29 @@ export async function registerClickUpNormalizerRoutes(app: FastifyInstance) {
     const body = Body.parse(req.body ?? {});
 
     const list = await getList(params.listId);
+
     const tasksRaw = await getTasks(params.listId);
     const tasks = toTaskLiteArray(tasksRaw);
 
-    const input = {
+    const normalized = normalizeClickUpListAndTasks({
       list: { id: list.id, name: list.name },
       tasks,
       raw: { list, tasks: tasksRaw },
       ...(body.bucket !== undefined ? { bucket: body.bucket } : {}),
-    };
-
-    const normalized = normalizeClickUpListAndTasks(input);
+    });
 
     const persisted = await persistClickUpSnapshot(normalized);
-    return reply.code(200).send({ normalized: { taskCount: normalized.tasks.length }, persisted });
+
+    return reply
+      .code(200)
+      .send({ normalized: { taskCount: normalized.tasks.length }, persisted });
+  });
+
+  app.post("/dev/clickup/workspace/snapshot", async (_req, reply) => {
+    const result = await snapshotWorkspaceFromSpaces(async (listId) => {
+      await snapshotList(listId);
+    });
+
+    return reply.send(result);
   });
 }

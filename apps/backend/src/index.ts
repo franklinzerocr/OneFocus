@@ -8,6 +8,10 @@ import type { ClickUpTaskUpdateInput } from "./integrations/clickup/endpoints/ta
 import type { ClickUpCreateTaskInput } from "./integrations/clickup/types";
 import { registerRawBody } from "./webhooks/registerRawBody";
 import { registerWebhookRoutes } from "./webhooks/routes";
+import { startSnapshotCron } from "./scheduler/snapshotCron";
+
+// ✅ ADD: clickup normalizer routes (list snapshot + workspace snapshot)
+import { registerClickUpNormalizerRoutes } from "./normalizer/clickup/routes";
 
 const { env } = getConfig();
 
@@ -17,11 +21,16 @@ const app = Fastify({
   },
 });
 
+// Webhooks
 await app.register(async (scoped) => {
   registerRawBody(scoped);
   await registerWebhookRoutes(scoped);
 });
 
+// ✅ Normalizer routes
+await registerClickUpNormalizerRoutes(app);
+
+// Existing dev endpoints
 app.post("/dev/ingest/clickup/list/:listId", async (req) => {
   const { listId } = req.params as { listId: string };
   const name = (req.query as { name?: string }).name ?? undefined;
@@ -62,3 +71,6 @@ app.post("/dev/clickup/task/:taskId/comment", async (req) => {
 });
 
 await app.listen({ port: env.PORT, host: env.HOST });
+
+// Scheduler (cron snapshots)
+startSnapshotCron();

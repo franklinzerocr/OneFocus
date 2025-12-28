@@ -1,18 +1,21 @@
-import type { ClickUpTask } from "../types";
 import { getTasks } from "./tasks";
+import type { ClickUpTask } from "../types";
 
-export async function getAllTasks(listId: string) {
+type GetTasksResponse = {
+  tasks?: ClickUpTask[];
+};
+
+export async function getAllTasks(listId: string): Promise<ClickUpTask[]> {
   const all: ClickUpTask[] = [];
   let page = 0;
 
-  // ClickUp devuelve array; cuando queda vacío, terminamos.
-  // (Si luego ClickUp cambia, ajustamos con metadata.)
-  while (true) {
-    const res = await getTasks(listId, page);
-    if (!res.tasks.length) break;
-    all.push(...res.tasks);
-    page++;
-    if (page > 10_000) throw new Error("Pagination runaway (safety stop)");
+  for (;;) {
+    const res = (await getTasks(listId, page)) as GetTasksResponse;
+    const chunk = res.tasks ?? [];
+    if (chunk.length === 0) break;
+
+    all.push(...chunk);
+    page += 1;
   }
 
   return all;
