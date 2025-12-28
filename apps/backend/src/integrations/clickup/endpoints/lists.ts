@@ -1,3 +1,4 @@
+// apps/backend/src/integrations/clickup/endpoints/lists.ts
 import { clickupRequest } from "../http";
 import type { ClickUpList } from "../types";
 
@@ -16,4 +17,8 @@ export async function getLists(params: { folderId?: string; spaceId?: string }) 
   if (params.folderId) return getFolderLists(params.folderId);
   if (params.spaceId) return getSpaceLists(params.spaceId);
   throw new Error("getLists requires folderId or spaceId");
+}
+
+export async function getList(listId: string) {
+  return clickupRequest<ClickUpList>("GET", `/list/${listId}`);
 }

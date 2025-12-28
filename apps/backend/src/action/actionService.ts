@@ -16,6 +16,10 @@ function errorToString(e: unknown): string {
   return String(e);
 }
 
+function hasResult(x: unknown): x is { result?: unknown } {
+  return typeof x === "object" && x !== null && "result" in x;
+}
+
 export async function proposeAction(input: ProposeActionInput) {
   return prisma.actionProposed.create({
     data: {
@@ -50,13 +54,7 @@ export async function executeAction(
 ) {
   try {
     const out = await runner();
-
-    type RunnerResult = { result?: unknown };
-
-    const maybeResult =
-      out && typeof out === "object" && "result" in out
-        ? (out as RunnerResult).result
-        : undefined;
+    const maybeResult = hasResult(out) ? out.result : undefined;
 
     return prisma.actionExecuted.create({
       data: {

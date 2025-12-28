@@ -1,3 +1,4 @@
+// apps/backend/src/index.ts
 import Fastify from "fastify";
 import { HealthResponseSchema } from "@onefocus/shared";
 import { getConfig } from "./config";
@@ -7,10 +8,6 @@ import type { ClickUpTaskUpdateInput } from "./integrations/clickup/endpoints/ta
 import type { ClickUpCreateTaskInput } from "./integrations/clickup/types";
 import { registerRawBody } from "./webhooks/registerRawBody";
 import { registerWebhookRoutes } from "./webhooks/routes";
-import { registerActionRoutes } from "./action/routes";
-import { registerClickUpNormalizerRoutes } from "./normalizer/clickup/routes";
-
-
 
 const { env } = getConfig();
 
@@ -23,9 +20,6 @@ const app = Fastify({
 await app.register(async (scoped) => {
   registerRawBody(scoped);
   await registerWebhookRoutes(scoped);
-  await registerActionRoutes(scoped);
-  await registerClickUpNormalizerRoutes(scoped);
-
 });
 
 app.post("/dev/ingest/clickup/list/:listId", async (req) => {
@@ -52,19 +46,19 @@ app.get("/health", async () => {
 app.patch("/dev/clickup/task/:taskId", async (req) => {
   const { taskId } = req.params as { taskId: string };
   const body = req.body as ClickUpTaskUpdateInput;
-  return clickup.clickupUpdateTask(taskId, body);
+  return clickup.updateTask(taskId, body);
 });
 
 app.post("/dev/clickup/list/:listId/task", async (req) => {
   const { listId } = req.params as { listId: string };
   const body = req.body as ClickUpCreateTaskInput;
-  return clickup.clickupCreateTask(listId, body);
+  return clickup.createTask(listId, body);
 });
 
 app.post("/dev/clickup/task/:taskId/comment", async (req) => {
   const { taskId } = req.params as { taskId: string };
   const body = req.body as { comment_text: string };
-  return clickup.clickupAddComment(taskId, body.comment_text);
+  return clickup.addTaskComment(taskId, body.comment_text);
 });
 
 await app.listen({ port: env.PORT, host: env.HOST });

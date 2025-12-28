@@ -29,9 +29,7 @@ export async function handleGithubIssueEvent(evt: GithubIssueOpenedEvent) {
   const issueNo = evt.issue.number;
 
   const existing = await prisma.issueTaskLink.findUnique({
-    where: {
-      githubRepo_githubIssueNo: { githubRepo: repo, githubIssueNo: issueNo },
-    },
+    where: { githubRepo_githubIssueNo: { githubRepo: repo, githubIssueNo: issueNo } },
     select: { id: true },
   });
   if (existing) return { status: "already_linked" as const, linkId: existing.id };
@@ -42,15 +40,17 @@ export async function handleGithubIssueEvent(evt: GithubIssueOpenedEvent) {
     "ISSUE_TASK_DEFAULT_CLICKUP_LIST_ID is required"
   );
 
+  // ✅ TS-safe fallback (fixes CI)
+  const defaultEstimateMin = cfg.env.DEFAULT_TASK_ESTIMATE_MINUTES ?? 60;
+
   const dueStr = parseDueDateFromIssue(evt.issue.body);
   const dueMs = dueStr ? endOfDayUtcMs(dueStr) : toEndOfProjectDue(projectEndDate);
 
   const created = await clickupCreateTask(defaultListId, {
     name: `[GH#${issueNo}] ${evt.issue.title}`,
     description: `GitHub: ${evt.issue.html_url}\n\n${evt.issue.body ?? ""}`.trim(),
-    // ClickUp expects ms epoch as number (your types also require number)
     due_date: dueMs,
-    time_estimate: cfg.env.DEFAULT_TASK_ESTIMATE_MINUTES * 60 * 1000,
+    time_estimate: defaultEstimateMin * 60 * 1000,
   });
 
   const internalTask = await prisma.task.upsert({
@@ -75,11 +75,9 @@ export async function handleGithubIssueEvent(evt: GithubIssueOpenedEvent) {
       githubIssueNo: issueNo,
       githubNodeId: evt.issue.node_id ?? null,
       githubIssueUrl: evt.issue.html_url,
-
       clickupTaskId: created.id,
       clickupListId: defaultListId,
       clickupTaskUrl: null,
-
       task: { connect: { id: internalTask.id } },
     },
     select: { id: true },
@@ -88,8 +86,6 @@ export async function handleGithubIssueEvent(evt: GithubIssueOpenedEvent) {
   await clickupAddComment(created.id, `Linked GitHub issue: ${evt.issue.html_url}`);
 
   const kind: ActionKind = "AUTO_SAFE";
-
-  // ✅ input NO incluye `kind` porque autoSafeAction usa Omit<ProposeActionInput, "kind">
   const { proposed, executed } = await autoSafeAction(
     kind,
     {
