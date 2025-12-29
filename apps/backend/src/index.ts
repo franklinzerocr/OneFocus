@@ -9,8 +9,7 @@ import type { ClickUpCreateTaskInput } from "./integrations/clickup/types";
 import { registerRawBody } from "./webhooks/registerRawBody";
 import { registerWebhookRoutes } from "./webhooks/routes";
 import { startSnapshotCron } from "./scheduler/snapshotCron";
-
-// ✅ ADD: clickup normalizer routes (list snapshot + workspace snapshot)
+import { contextPackRoutes } from "./routes/contextPack";
 import { registerClickUpNormalizerRoutes } from "./normalizer/clickup/routes";
 
 const { env } = getConfig();
@@ -21,13 +20,16 @@ const app = Fastify({
   },
 });
 
-// Webhooks
+// ✅ REGISTER ROUTES ONCE
+await app.register(contextPackRoutes);
+
+// Webhooks (solo webhooks aquí)
 await app.register(async (scoped) => {
   registerRawBody(scoped);
   await registerWebhookRoutes(scoped);
 });
 
-// ✅ Normalizer routes
+// Normalizer routes
 await registerClickUpNormalizerRoutes(app);
 
 // Existing dev endpoints

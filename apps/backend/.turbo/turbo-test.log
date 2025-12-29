@@ -5,17 +5,19 @@
 
 [1m[7m[36m RUN [39m[27m[22m [36mv2.1.9 [39m[90mC:/projects/personal/OneFocus/apps/backend[39m
 
- [32m✓[39m src/integrations/clickup/httpFactory.test.ts [2m([22m[2m4 tests[22m[2m)[22m[90m 5[2mms[22m[39m
- [32m✓[39m src/action/actionService.test.ts [2m([22m[2m3 tests[22m[2m)[22m[90m 104[2mms[22m[39m
- [32m✓[39m src/linking/issueTask/issueTaskLinkService.test.ts [2m([22m[2m2 tests[22m[2m)[22m[90m 118[2mms[22m[39m
+ [32m✓[39m src/integrations/clickup/httpFactory.test.ts [2m([22m[2m4 tests[22m[2m)[22m[90m 7[2mms[22m[39m
+ [32m✓[39m src/action/actionService.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 375[2mms[22m[39m
+   [33m[2m✓[22m[39m actionService[2m > [22mproposeAction creates ActionProposed with status PROPOSED [33m371[2mms[22m[39m
+ [32m✓[39m src/linking/issueTask/issueTaskLinkService.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 385[2mms[22m[39m
+   [33m[2m✓[22m[39m handleGithubIssueEvent[2m > [22mcreates ClickUp task and links GitHub issue [33m381[2mms[22m[39m
+ [32m✓[39m src/normalizer/clickup/clickupNormalizer.test.ts [2m([22m[2m1 test[22m[2m)[22m[90m 8[2mms[22m[39m
  [32m✓[39m src/config/env.test.ts [2m([22m[2m2 tests[22m[2m)[22m[90m 6[2mms[22m[39m
- [32m✓[39m src/normalizer/clickup/clickupNormalizer.test.ts [2m([22m[2m1 test[22m[2m)[22m[90m 5[2mms[22m[39m
  [2m[90m↓[39m[22m src/db/db.test.ts [2m([22m[2m1 test[22m[2m | [22m[33m1 skipped[39m[2m)[22m
- [32m✓[39m src/webhooks/routes.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 485[2mms[22m[39m
-   [33m[2m✓[22m[39m webhook routes[2m > [22mrejects invalid github signature with 401 [33m483[2mms[22m[39m
+ [32m✓[39m src/webhooks/routes.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 537[2mms[22m[39m
+   [33m[2m✓[22m[39m webhook routes[2m > [22mrejects invalid github signature with 401 [33m535[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m6 passed[39m[22m[2m | [22m[33m1 skipped[39m[90m (7)[39m
 [2m      Tests [22m [1m[32m13 passed[39m[22m[2m | [22m[33m1 skipped[39m[90m (14)[39m
-[2m   Start at [22m 20:19:35
-[2m   Duration [22m 2.52s[2m (transform 1.62s, setup 0ms, collect 2.46s, tests 723ms, environment 2ms, prepare 1.56s)[22m
+[2m   Start at [22m 17:54:59
+[2m   Duration [22m 7.66s[2m (transform 2.59s, setup 0ms, collect 8.07s, tests 1.32s, environment 2ms, prepare 1.78s)[22m
 
